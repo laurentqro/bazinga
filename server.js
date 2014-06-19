@@ -68,6 +68,30 @@ userSchema.methods.comparePassword = function(candidatePassword, cb) {
   });
 };
 
+// User authentication
+
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+  User.findById(id, function(err, user) {
+    done(err, user);
+  });
+});
+
+passport.use(new LocalStrategy({ usernameField: 'email' }, function(email, password, done) {
+  User.findOne({ email: email }, function(err, user) {
+    if (err) return done(err);
+    if (!user) return done(null, false);
+    user.comparePassword(password, function(err, isMatch) {
+      if (err) return done(err);
+      if (isMatch) return done(null, user);
+      return done(null, false);
+    });
+  });
+}));
+
 // Models
 
 var User = mongoose.model('User', userSchema);
@@ -82,6 +106,9 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(cookieParser());
+app.use(session({ secret: 'top secret phrase' }));
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes

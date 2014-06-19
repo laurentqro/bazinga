@@ -92,6 +92,11 @@ passport.use(new LocalStrategy({ usernameField: 'email' }, function(email, passw
   });
 }));
 
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) next();
+  else res.send(401);
+}
+
 // Models
 
 var User = mongoose.model('User', userSchema);

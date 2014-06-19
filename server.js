@@ -105,8 +105,10 @@ var Show = mongoose.model('Show', showSchema);
 mongoose.connect('localhost');
 
 var app = express();
-
 app.set('port', process.env.PORT || 3000);
+
+// Middleware
+
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
@@ -115,6 +117,12 @@ app.use(session({ secret: 'top secret phrase' }));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(function(req, res, next) {
+  if (req.user) {
+    res.cookie('user', JSON.stringify(req.user));
+  }
+  next();
+});
 
 // Routes
 

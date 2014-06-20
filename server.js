@@ -18,7 +18,16 @@ var LocalStrategy = require('passport-local').Strategy;
 
 var agenda = require('agenda')({ db: { address: 'localhost:27017/test' } });
 var sugar = require('sugar');
+
 var nodemailer = require('nodemailer');
+var smtpTransport = nodemailer.createTransport("SMTP",{
+    service: 'Mandrill',
+    port: 587,
+    auth: {
+        user: process.env.MANDRILL_USERNAME,
+        pass: process.env.MANDRILL_API_KEY
+    }
+});
 
 // DB Schema
 
@@ -251,7 +260,7 @@ app.post('/api/shows', function(req, res, next) {
         return next(err);
       }
       var alertDate = Date.create('Next ' + show.airsDayOfWeek + ' at ' + show.airsTime).rewind({ hour: 2 }); // Date.create courtesy of Sugar.js
-      agenda.schedule(alertDate, 'send email alert', show.name).repeatEvery('1 week');
+      agenda.schedule(alertDate, 'send email alert', show.name).repeatEvery('5 minutes');
       res.send(200);
     });
   });
@@ -264,6 +273,7 @@ app.post('/api/subscribe', ensureAuthenticated, function(req, res, next) {
     show.save(function(err) {
       if (err) return next(err);
       res.send(200);
+      sendEmailNotification({ subject: 'New subscriber', text: 'A new subscriber was added to ' + show.name + '.' });
     });
   });
 });
@@ -303,22 +313,20 @@ agenda.define('send email alert', function(job, done) {
       return new Date(episode.firstAired) > new Date();
     })[0];
 
-    var smtpTransport = nodemailer.createTransport('SMTP', {
-      service: 'SendGrid',
-      auth: { user: 'laurentqro', password: 'laurentspasswd01' }
-    });
-
     var mailOptions = {
       from: 'Laurent of Bazinga <laurent@bazinga.com>',
       to: emails.join(','),
-      subject: show.name + ' is starting soon!'
+      subject: show.name + ' is starting soon!',
       text: show.name + ' episode ' + upcomingEpisode.episodeNumber + ' starts in less then 2 hours on  ' + show.network + '.'
     };
 
-    smtpTransport.sendMail(mailOptions, function(err, response) {
-      console.log('Message sent: ' + response.message);
-      smtpTransport.close();
-      done();
+    smtpTransport.sendMail(mailOptions, function(error, response){
+      if(error){
+          console.log(error);
+      }else{
+          console.log("Message sent: " + response.message);
+      }
+      smtpTransport.close(); // shut down the connection pool, no more messages
     });
   });
 });
@@ -333,5 +341,21 @@ agenda.on('complete', function (job) {
     console.log("Job %s is complete", job.attrs.name);
 });
 
+function sendEmailNotification(data) {
 
+  var mailOptions = {
+      from: 'Laurent of Bazinga <laurent@bazinga.com>',
+      to: 'laurentcurau@gmail.com',
+      subject: data.subject,
+      text: data.text
+  };
 
+  smtpTransport.sendMail(mailOptions, function(error, response){
+    if(error){
+        console.log(error);
+    }else{
+        console.log("Message sent: " + response.message);
+    }
+    smtpTransport.close(); // shut down the connection pool, no more messages
+  });
+};

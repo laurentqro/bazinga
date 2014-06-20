@@ -321,5 +321,15 @@ agenda.define('send an email alert', function(job, done) {
   });
 });
 
+agenda.start();
+
+agenda.on('start', function (job) {
+    console.log("Job %s is starting", job.attrs.name);
+});
+
+agenda.on('complete', function (job) {
+    console.log("Job %s is complete", job.attrs.name);
+});
+
 
 

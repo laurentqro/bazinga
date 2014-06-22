@@ -199,6 +199,9 @@ app.post('/api/shows', function(req, res, next) {
   async.waterfall([
     function(callback) {
       request.get('http://thetvdb.com/api/GetSeries.php?seriesname=' + seriesName, function(error, response, body) {
+        if (response === undefined) {
+          return res.send(503, { message: req.body.showName + ' is currently unavailable on the TVDB API.' });
+        }
         if (error) return next(error);
         parser.parseString(body, function(err, result) {
           if (!result.data.series) {

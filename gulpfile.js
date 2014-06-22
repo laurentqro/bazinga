@@ -31,4 +31,10 @@ gulp.task('watch', function() {
   gulp.watch(['public/**/*.js', '!public/app.min.js', '!public/vendor'], ['compress']);
 });
 
-gulp.task('default', ['sass', 'compress', 'watch']);
+gulp.task('templates', function() {
+  gulp.src('public/views/**/*.html')
+    .pipe(templateCache({ root: 'views', module: 'MyApp' }))
+    .pipe(gulp.dest('public'));
+});
+
+gulp.task('default', ['sass', 'compress', 'templates', 'watch']);

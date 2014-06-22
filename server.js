@@ -316,15 +316,11 @@ agenda.define('send email alert', function(job, done) {
       return user.email;
     });
 
-    var upcomingEpisode = show.episodes.filter(function(episode) {
-      return new Date(episode.firstAired) > new Date();
-    })[0];
-
     var mailOptions = {
       from: 'Laurent of Bazinga <laurent@bazinga.com>',
       to: emails.join(','),
       subject: show.name + ' is starting soon!',
-      text: show.name + ' episode ' + upcomingEpisode.episodeNumber + ' starts in less then 2 hours on  ' + show.network + '.'
+      text: 'The next episode of ' + show.name + ' starts in less then 2 hours on ' + show.network + '.'
     };
 
     smtpTransport.sendMail(mailOptions, function(error, response){

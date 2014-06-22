@@ -6,6 +6,7 @@ var bodyParser = require('body-parser');
 
 var mongoose = require('mongoose');
 var bcrypt = require('bcryptjs');
+var mongoUri = process.env.BAZINGA_MONGOLAB_URI || 'localhost:27017/test';
 
 var async = require('async');
 var request = require('request');
@@ -16,7 +17,7 @@ var session = require('express-session');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 
-var agenda = require('agenda')({ db: { address: 'localhost:27017/test' } });
+var agenda = require('agenda')({ db: { address: mongoUri } });
 var sugar = require('sugar');
 
 var nodemailer = require('nodemailer');
@@ -115,7 +116,7 @@ function ensureAuthenticated(req, res, next) {
 var User = mongoose.model('User', userSchema);
 var Show = mongoose.model('Show', showSchema);
 
-mongoose.connect('localhost');
+mongoose.connect(mongoUri);
 
 var app = express();
 app.set('port', process.env.PORT || 3000);

@@ -29,6 +29,11 @@ var smtpTransport = nodemailer.createTransport("SMTP",{
     }
 });
 
+var csso = require('gulp-csso');
+var uglify = require('gulp-uglify');
+var concat = require('gulp-concat');
+var templateCache = require('gulp-angular-templatecache');
+
 // DB Schema
 
 var showSchema = new mongoose.Schema({

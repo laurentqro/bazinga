@@ -119,10 +119,11 @@ var Show = mongoose.model('Show', showSchema);
 mongoose.connect('localhost');
 
 var app = express();
-app.set('port', process.env.PORT || 3000);
 
 // Middleware
 
+app.set('port', process.env.PORT || 3000);
+app.use(compress());
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());

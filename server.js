@@ -266,7 +266,7 @@ app.post('/api/shows', function(req, res, next) {
         return next(err);
       }
       var alertDate = Date.create('Next ' + show.airsDayOfWeek + ' at ' + show.airsTime).rewind({ hour: 2 }); // Date.create courtesy of Sugar.js
-      agenda.schedule(alertDate, 'send email alert', show.name).repeatEvery('5 minutes');
+      agenda.schedule(alertDate, 'send email alert', show.name).repeatEvery('1 week');
       res.send(200);
     });
   });
@@ -310,7 +310,8 @@ app.listen(app.get('port'), function() {
 });
 
 agenda.define('send email alert', function(job, done) {
-  Show.findOne({ name: job.attrs.data }).populate('subscribers').exec(function(err, show) {
+  var data = job.attrs.data;
+  Show.findOne({ name: data }).populate('subscribers').exec(function(err, show) {
     var emails = show.subscribers.map(function(user) {
       return user.email;
     });
@@ -338,6 +339,14 @@ agenda.define('send email alert', function(job, done) {
 });
 
 agenda.start();
+
+agenda.once('success:send email', function(job) {
+  console.log("Sent Email Successfully to: %s", job.attrs.data.to);
+});
+
+agenda.on('fail:send email alert', function(err, job){
+  console.log('Job failed with error: %s', err.message);
+});
 
 agenda.on('start', function (job) {
     console.log("Job %s is starting", job.attrs.name);

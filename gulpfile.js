@@ -1,6 +1,10 @@
 var gulp = require('gulp');
 var sass = require('gulp-sass');
 var plumber = require('gulp-plumber');
+var csso = require('gulp-csso');
+var uglify = require('gulp-uglify');
+var concat = require('gulp-concat');
+var templateCache = require('gulp-angular-templatecache');
 
 gulp.task('sass', function() {
   gulp.src('public/stylesheets/style.scss')

@@ -3,6 +3,7 @@ var path = require('path');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var compress = require('compression')
 
 var mongoose = require('mongoose');
 var bcrypt = require('bcryptjs');
@@ -119,10 +120,11 @@ var Show = mongoose.model('Show', showSchema);
 mongoose.connect(mongoUri);
 
 var app = express();
-app.set('port', process.env.PORT || 3000);
 
 // Middleware
 
+app.set('port', process.env.PORT || 3000);
+app.use(compress());
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
@@ -130,7 +132,7 @@ app.use(cookieParser());
 app.use(session({ secret: 'top secret phrase' }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: 86400000 }));
 app.use(function(req, res, next) {
   if (req.user) {
     res.cookie('user', JSON.stringify(req.user));

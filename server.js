@@ -131,7 +131,7 @@ app.use(cookieParser());
 app.use(session({ secret: 'top secret phrase' }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: 86400000 }));
 app.use(function(req, res, next) {
   if (req.user) {
     res.cookie('user', JSON.stringify(req.user));

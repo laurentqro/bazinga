@@ -1,19 +1,12 @@
 exports.config = {
+  seleniumAddress: 'http://0.0.0.0:4444/wd/hub',
   allScriptsTimeout: 11000,
-
-  specs: [
-    'e2e/*.js'
-  ],
-
-  capabilities: {
-    'browserName': 'chrome'
-  },
-
-  baseUrl: 'http://localhost:8000/app/',
-
+  capabilities: { 'browserName': 'chrome' },
+  specs: [ 'e2e/*.js' ],
+  baseUrl: 'http://localhost:3000/',
   framework: 'jasmine',
-
   jasmineNodeOpts: {
+    showColors: true,
     defaultTimeoutInterval: 30000
   }
 };
